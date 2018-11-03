@@ -1,11 +1,11 @@
 import Link from 'next/link';
 
-const Home = function() {
+const Sell = function() {
   return (
     <div>
-      <p>Home</p>
+      <p>Sell</p>
     </div>
   );
 };
 
-export default Home;
+export default Sell;
