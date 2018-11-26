@@ -10,7 +10,7 @@ const server = createServer();
 server.start({
   cors: {
     credentials: true,
-    origin: 'process.env.FRONTEND_URL'    
+    origin: process.env.FRONTEND_URL    
   }
 }, deets => {
   console.log(`server started at http://localhost:${deets.port}`)
