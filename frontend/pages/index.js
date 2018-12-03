@@ -1,9 +1,9 @@
 import Items from "../components/Items";
 
-const Home = function() {
+const Home = function(props) {
   return (
     <div>
-      <Items />
+      <Items page={parseFloat(props.query.page) || 1} />
     </div>
   );
 };
