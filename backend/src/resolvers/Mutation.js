@@ -2,14 +2,24 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { randomBytes } = require("crypto");
 const { promisify } = require("util");
+const { transport, makeANiceEmail } = require("../mail");
+const { hasPermission } = require("../utils");
 
 const Mutation = {
   async createItem(parent, args, ctx, info) {
-    // TODO: check if they are logged in
+    if (!ctx.request.userId) {
+      throw new Error("You must be logged in to do that!");
+    }
 
     const item = await ctx.db.mutation.createItem(
       {
         data: {
+          // This creates a relationship between item and user
+          user: {
+            connect: {
+              id: ctx.request.userId
+            }
+          },
           ...args
         }
       },
@@ -18,6 +28,7 @@ const Mutation = {
 
     return item;
   },
+
   updateItem(parent, args, ctx, info) {
     //make copy of updates
     const updates = { ...args };
@@ -34,15 +45,23 @@ const Mutation = {
       info
     );
   },
+
   async deleteItem(parent, args, ctx, info) {
     const where = { id: args.id };
     // 1. find item
-    const item = await ctx.db.query.item({ where }, "{ id title }");
+    const item = await ctx.db.query.item({ where }, "{ id title user {id} }");
     // 2. Check if they own the item, or have permissions
-    // TODO
+    const ownsItem = item.user.id === ctx.request.userId;
+    const hasPermissions = ctx.request.user.permissions.some(permission =>
+      ["ADMIN", "ITEMDELETE"].includes(permission)
+    );
+    if (!ownsItem && !hasPermissions) {
+      throw new Error("You don't have permission to do that!");
+    }
     // 3. Delete it
     return ctx.db.mutation.deleteItem({ where }, info);
   },
+
   async signup(parent, args, ctx, info) {
     // set emails to lowercase (so it'll always match when they login)
     args.email = args.email.toLowerCase();
@@ -69,6 +88,7 @@ const Mutation = {
     // return user to the browser
     return user;
   },
+
   async signin(parent, { email, password }, ctx, info) {
     // 1. check if there is a user with that email
     const user = await ctx.db.query.user({ where: { email } });
@@ -90,10 +110,12 @@ const Mutation = {
     // 5. return the user
     return user;
   },
+
   signout(parent, args, ctx, info) {
     ctx.response.clearCookie("token");
     return { message: "Goodbye!" };
   },
+
   async requestReset(parent, args, ctx, info) {
     // 1. check if a real user
     const user = await ctx.db.query.user({ where: { email: args.email } });
@@ -107,10 +129,23 @@ const Mutation = {
       where: { email: args.email },
       data: { resetToken, resetTokenExpiry }
     });
-    console.log(res);
-    return { message: "Thanks!" };
     // 3. email them the reset token
+    const mailRes = await transport.sendMail({
+      from: "michael@michaelbaghel.com",
+      to: user.email,
+      subject: "Your Password Reset Token",
+      html: makeANiceEmail(`
+        Your password reset token is here: 
+        \n\n
+        <a href="${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}">
+          Click Here to Reset
+        </a>
+      `)
+    });
+    // 4. return the message
+    return { message: "Thanks!" };
   },
+
   async resetPassword(parent, args, ctx, info) {
     // 1. check if passwords match
     if (args.password !== args.confirmPassword) {
@@ -143,6 +178,34 @@ const Mutation = {
     // 8. return the user
     console.log(updatedUser);
     return updatedUser;
+  },
+
+  async updatePermissions(parent, args, ctx, info) {
+    // 1. Check if they are logged in
+    if (!ctx.request.userId) {
+      throw new Error("You must be logged in!");
+    }
+    // 2. Query the current user
+    const currentUser = await ctx.db.query.user(
+      { where: { id: ctx.request.userId } },
+      info
+    );
+    // 3. Check if they have permissions to do this
+    hasPermission(currentUser, ["ADMIN", "PERMISSIONUPDATE"]);
+    // 4. Update the permissions
+    return ctx.db.mutation.updateUser(
+      {
+        data: {
+          permissions: {
+            set: args.permissions
+          }
+        },
+        where: {
+          id: args.userId
+        }
+      },
+      info
+    );
   }
 };
 

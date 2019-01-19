@@ -8,6 +8,7 @@ const server = createServer();
 
 server.express.use(cookieParser());
 
+// decode JWT to get user Id with each request
 server.express.use((req, res, next) => {
   const { token } = req.cookies;
   if (token) {
@@ -15,6 +16,18 @@ server.express.use((req, res, next) => {
     // put userId onto the req for future requests to access
     req.userId = userId;
   }
+  next();
+});
+
+// Populate user on each request
+server.express.use(async (req, res, next) => {
+  if (!req.userId) return next();
+  const user = await db.query.user(
+    { where: { id: req.userId } },
+    "{ id, permissions, email, name}"
+  );
+  console.log(user);
+  req.user = user;
   next();
 });
 

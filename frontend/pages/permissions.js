@@ -1,14 +1,15 @@
 import CreateItem from "../components/CreateItem";
 import PleaseSignIn from "../components/PleaseSignIn";
+import Permissions from "../components/Permissions";
 
-const Sell = function() {
+const PermissionsPage = function() {
   return (
     <div>
       <PleaseSignIn>
-        <CreateItem />
+        <Permissions />
       </PleaseSignIn>
     </div>
   );
 };
 
-export default Sell;
+export default PermissionsPage;
