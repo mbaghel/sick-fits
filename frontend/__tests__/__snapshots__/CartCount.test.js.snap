@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<CartCount /> handles updates to its props 1`] = `
+<CartCount__AnimationStyles>
+  <TransitionGroup
+    childFactory={[Function]}
+    component="div"
+  >
+    <CSSTransition
+      className="count"
+      classNames="count"
+      key="25"
+      timeout={
+        Object {
+          "enter": 400,
+          "exit": 400,
+        }
+      }
+      unmountOnExit={true}
+    >
+      <CartCount__Dot>
+        25
+      </CartCount__Dot>
+    </CSSTransition>
+  </TransitionGroup>
+</CartCount__AnimationStyles>
+`;
+
+exports[`<CartCount /> handles updates to its props 2`] = `
+<CartCount__AnimationStyles>
+  <TransitionGroup
+    childFactory={[Function]}
+    component="div"
+  >
+    <CSSTransition
+      className="count"
+      classNames="count"
+      key="19"
+      timeout={
+        Object {
+          "enter": 400,
+          "exit": 400,
+        }
+      }
+      unmountOnExit={true}
+    >
+      <CartCount__Dot>
+        19
+      </CartCount__Dot>
+    </CSSTransition>
+  </TransitionGroup>
+</CartCount__AnimationStyles>
+`;
+
+exports[`<CartCount /> matches the snapshot 1`] = `
+<CartCount__AnimationStyles>
+  <TransitionGroup
+    childFactory={[Function]}
+    component="div"
+  >
+    <CSSTransition
+      className="count"
+      classNames="count"
+      key="6"
+      timeout={
+        Object {
+          "enter": 400,
+          "exit": 400,
+        }
+      }
+      unmountOnExit={true}
+    >
+      <CartCount__Dot>
+        6
+      </CartCount__Dot>
+    </CSSTransition>
+  </TransitionGroup>
+</CartCount__AnimationStyles>
+`;
