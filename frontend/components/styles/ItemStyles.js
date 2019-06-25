@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Item = styled.div`
   background: white;
@@ -32,6 +32,8 @@ const Item = styled.div`
       border: 0;
       font-size: 1rem;
       padding: 1rem;
+      font-family: inherit;
+      cursor: pointer;
     }
   }
 `;
